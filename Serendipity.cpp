@@ -78,7 +78,7 @@ void SerendipityDerivative(std::vector<std::vector<double>>& DNi, ElementType ty
 
 	assert(static_cast<int>(inci.size() == nodes) && "Error: incidence vector must size must match number of nodes");
 
-	DNi.resize(nodes, std::vector<double>(2, 0.0));
+	DNi.resize(2, std::vector<double>(nodes, 0.0));
 
 	//temporary variables to simplify calculations
 	double mxs, pxs, met, pet;
@@ -87,20 +87,20 @@ void SerendipityDerivative(std::vector<std::vector<double>>& DNi, ElementType ty
 		assert((nodes == 2 || nodes == 3) && "Error: 1D elements must have 2 or 3 nodes");
 
 		DNi[0][0] = -0.5;
-		DNi[1][0] = 0.5;
+		DNi[0][1] = 0.5;
 
 		if (nodes == 3) {
-			DNi[2][0] = -2. * xsi;
-			DNi[0][0] = DNi[0][0] - 0.5 * DNi[2][0];
-			DNi[1][0] = DNi[1][0] - 0.5 * DNi[2][0];
+			DNi[0][2] = -2. * xsi;
+			DNi[0][0] = DNi[0][0] - 0.5 * DNi[0][2];
+			DNi[0][1] = DNi[0][1] - 0.5 * DNi[0][2];
 
-			DNi[0][1] = DNi[1][1] = DNi[2][1] = 0.0; //derivatives wrt eta are zero
+			DNi[1][0] = DNi[1][1] = DNi[1][2] = 0.0; //derivatives wrt eta are zero
 		}
 		else {
-			DNi[0][1] = DNi[1][1] = 0.0;
+			DNi[1][0] = DNi[1][1] = 0.0;
 		}
 	}
-	if (type == QUAD) {
+	else if (type == QUAD) {
 		//partial derivatives for 2D in xsi and eta direction
 		assert((nodes == 4 || nodes == 8) && "Error: quadrilateral elements must have 4 or 8 nodes");
 
@@ -110,50 +110,50 @@ void SerendipityDerivative(std::vector<std::vector<double>>& DNi, ElementType ty
 		pet = 1. + eta;
 
 		DNi[0][0] = -0.25 * met;
-		DNi[0][1] = -0.25 * mxs;
-		DNi[1][0] = 0.25 * met;
+		DNi[1][0] = -0.25 * mxs;
+		DNi[0][1] = 0.25 * met;
 		DNi[1][1] = -0.25 * pxs;
-		DNi[2][0] = 0.25 * pet;
-		DNi[2][1] = 0.25 * pxs;
-		DNi[3][0] = -0.25 * pet;
-		DNi[3][1] = 0.25 * mxs;
+		DNi[0][2] = 0.25 * pet;
+		DNi[1][2] = 0.25 * pxs;
+		DNi[0][3] = -0.25 * pet;
+		DNi[1][3] = 0.25 * mxs;
 
 		if (nodes == 4) return;
 		if (inci[4] > 0) {
-			DNi[4][0] = -xsi * met;
-			DNi[4][1] = -0.5 * (1.0 - xsi * xsi);
+			DNi[0][4] = -xsi * met;
+			DNi[1][4] = -0.5 * (1.0 - xsi * xsi);
 			//update corner nodes
-			DNi[0][0] -= 0.5 * DNi[4][0];
-			DNi[0][1] -= 0.5 * DNi[4][1];
-			DNi[1][0] -= 0.5 * DNi[4][0];
-			DNi[1][1] -= 0.5 * DNi[4][1];
+			DNi[0][0] -= 0.5 * DNi[0][4];
+			DNi[1][0] -= 0.5 * DNi[1][4];
+			DNi[0][1] -= 0.5 * DNi[0][4];
+			DNi[1][1] -= 0.5 * DNi[1][4];
 		}
 		if (inci[5] > 0) {
-			DNi[5][0] = 0.5 * (1. - eta * eta);
-			DNi[5][1] = -eta * pxs;
+			DNi[0][5] = 0.5 * (1. - eta * eta);
+			DNi[1][5] = -eta * pxs;
 
-			DNi[1][0] -= 0.5 * DNi[5][0];
-			DNi[1][1] -= 0.5 * DNi[5][1];
-			DNi[2][0] -= 0.5 * DNi[5][0];
-			DNi[2][1] -= 0.5 * DNi[5][1];
+			DNi[0][1] -= 0.5 * DNi[0][5];
+			DNi[1][1] -= 0.5 * DNi[1][5];
+			DNi[0][2] -= 0.5 * DNi[0][5];
+			DNi[1][2] -= 0.5 * DNi[1][5];
 		}
 		if (inci[6] > 0) {
-			DNi[6][0] = -xsi * pet;
-			DNi[6][1] = 0.5 * (1. - xsi * xsi);
+			DNi[0][6] = -xsi * pet;
+			DNi[1][6] = 0.5 * (1. - xsi * xsi);
 
-			DNi[2][0] -= 0.5 * DNi[6][0];
-			DNi[2][1] -= 0.5 * DNi[6][1];
-			DNi[3][0] -= 0.5 * DNi[6][0];
-			DNi[3][1] -= 0.5 * DNi[6][1];
+			DNi[0][2] -= 0.5 * DNi[0][6];
+			DNi[1][2] -= 0.5 * DNi[1][6];
+			DNi[0][3] -= 0.5 * DNi[0][6];
+			DNi[1][3] -= 0.5 * DNi[1][6];
 		}
 		if (inci[7] > 0) {
-			DNi[7][0] = -0.5 * (1. - eta * eta);
-			DNi[7][1] = -eta * mxs;
+			DNi[0][7] = -0.5 * (1. - eta * eta);
+			DNi[1][7] = -eta * mxs;
 
-			DNi[0][0] -= 0.5 * DNi[7][0];
-			DNi[0][1] -= 0.5 * DNi[7][1];
-			DNi[3][0] -= 0.5 * DNi[7][0];
-			DNi[3][1] -= 0.5 * DNi[7][1];
+			DNi[0][0] -= 0.5 * DNi[0][7];
+			DNi[1][0] -= 0.5 * DNi[1][7];
+			DNi[0][3] -= 0.5 * DNi[0][7];
+			DNi[1][3] -= 0.5 * DNi[1][7];
 		}
 	}
 	else {

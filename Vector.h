@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "Enum.h"
+#include "Utils.h"
 
 double DotProduct(const std::vector<double>& a, const std::vector<double>& b);
 std::vector<double> CrossProduct(const std::vector<double>& a, const std::vector<double>& b);

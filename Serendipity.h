@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Enum.h"
+#include "Utils.h"
 
 void SerendipityFunction(std::vector<double>& Ni, ElementType type,
 	double xsi, double eta, int nodes, const std::vector<int>& inci);

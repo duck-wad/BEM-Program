@@ -129,11 +129,13 @@
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Serendipity.cpp" />
+    <ClCompile Include="TestCases.cpp" />
     <ClCompile Include="Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Enum.h" />
+    <ClInclude Include="Utils.h" />
     <ClInclude Include="Serendipity.h" />
+    <ClInclude Include="TestCases.h" />
     <ClInclude Include="Vector.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

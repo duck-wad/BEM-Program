@@ -24,7 +24,7 @@ std::vector<double> CrossProduct(const std::vector<double>& a, const std::vector
 
 	result[0] = a[1] * b[2] - a[2] * b[1];
 	result[1] = -1*(a[0] * b[2] - a[2] * b[0]);
-	result[3] = a[0] * b[1] - a[1] * b[0];
+	result[2] = a[0] * b[1] - a[1] * b[0];
 	return result;
 }
 
@@ -55,7 +55,7 @@ void NormalJacobian(std::vector<double>& v3, double& Jac, double xsi, double eta
 
 	int Cdim = (type == QUAD) ? 3 : 2;
 
-	std::vector<std::vector<double>> DNi(nodes, std::vector<double>(2, 0.0));
+	std::vector<std::vector<double>> DNi(2, std::vector<double>(nodes, 0.0));
 	//initialize tangent vectors in xsi (v1) and eta (v2) direction
 	std::vector<double> v1(Cdim, 0.), v2(Cdim, 0.);
 
@@ -80,4 +80,11 @@ void NormalJacobian(std::vector<double>& v3, double& Jac, double xsi, double eta
 	Jac = VectorLength(v3);
 
 	NormalizeVector(v3, Jac);
+
+	//remove negative signs from zero values
+	for (size_t i = 0; i < v3.size(); i++) {
+		if (v3[i] <= DBL_EPSILON) {
+			v3[i] = std::fabs(v3[i]);
+		}
+	}
 }
