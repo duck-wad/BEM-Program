@@ -3,19 +3,14 @@
 #include <cassert>
 
 #include "TestCases.h"
-
-//#include "Enum.h"
-#include "Serendipity.h"
-#include "Vector.h"
-
-
+#include "Compute.h"
 
 int main() {
 
-	TestSerendipity(4);
+	//TestNormalJacobian(6);
+	//TestGaussPoints(9);
 
-	//TestNormalJacobian(7);
-
+	ComputeArea();
 	
 	return 0;
 }

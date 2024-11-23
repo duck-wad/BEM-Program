@@ -1,13 +1,15 @@
 #include <iostream>
 #include <vector>
 #include <cassert>
+#include <fstream>
+#include <iomanip>
 
-#include "Serendipity.h"
+#include "Geometry.h"
 
 //function receives a vector with shape function values, xsi and eta local coordinates, number of dimensions, number of nodes, and vector representing node indices
 //return the value of the shape functions at the given local coordinates
 //incidence vector contains the node numbers, if one of them is zero then the node is not active (missing)
-void SerendipityFunction(std::vector<double>& Ni, ElementType type,
+void SerendipityFunction(std::vector<double>& Ni, int ldim,
 	double xsi, double eta, int nodes, const std::vector<int>& inci) {
 
 	assert(static_cast<int>(inci.size() == nodes) && "Error: incidence vector must size must match number of nodes");
@@ -15,7 +17,7 @@ void SerendipityFunction(std::vector<double>& Ni, ElementType type,
 	//temporary variables to simplify calculations
 	double mxs, pxs, met, pet;
 
-	if (type == LINE) {
+	if (ldim == 1) {
 
 		assert((nodes == 2 || nodes == 3) && "Error: 1D elements must have 2 or 3 nodes");
 
@@ -28,7 +30,7 @@ void SerendipityFunction(std::vector<double>& Ni, ElementType type,
 		Ni[0] = Ni[0] - 0.5 * Ni[2];
 		Ni[1] = Ni[1] - 0.5 * Ni[2];
 	}
-	else if (type == QUAD) {
+	else if (ldim == 2) {
 
 		assert((nodes == 4 || nodes == 8) && "Error: quadrilateral elements must have 4 or 8 nodes");
 
@@ -73,7 +75,7 @@ void SerendipityFunction(std::vector<double>& Ni, ElementType type,
 //function receives vector of vectors for the derivatives
 //if element is 1D then the second column of DNi is filled with zeros
 //if element is 2D then the first column contains partial derivative wrt 
-void SerendipityDerivative(std::vector<std::vector<double>>& DNi, ElementType type,
+void SerendipityDerivative(std::vector<std::vector<double>>& DNi, int ldim,
 	double xsi, double eta, int nodes, const std::vector<int>& inci) {
 
 	assert(static_cast<int>(inci.size() == nodes) && "Error: incidence vector must size must match number of nodes");
@@ -83,7 +85,7 @@ void SerendipityDerivative(std::vector<std::vector<double>>& DNi, ElementType ty
 	//temporary variables to simplify calculations
 	double mxs, pxs, met, pet;
 
-	if (type == LINE) {
+	if (ldim == 1) {
 		assert((nodes == 2 || nodes == 3) && "Error: 1D elements must have 2 or 3 nodes");
 
 		DNi[0][0] = -0.5;
@@ -100,7 +102,7 @@ void SerendipityDerivative(std::vector<std::vector<double>>& DNi, ElementType ty
 			DNi[1][0] = DNi[1][1] = 0.0;
 		}
 	}
-	else if (type == QUAD) {
+	else if (ldim == 2) {
 		//partial derivatives for 2D in xsi and eta direction
 		assert((nodes == 4 || nodes == 8) && "Error: quadrilateral elements must have 4 or 8 nodes");
 

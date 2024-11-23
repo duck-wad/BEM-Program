@@ -1,0 +1,14 @@
+ldim: 2 lnodes: 4 noelem: 4 intord: 2		
+element 1 indices: 1 2 3 4		
+element 2 indices: 2 5 6 3		
+element 3 indices: 3 6 7 8		
+element 4 indices: 4 3 8 9		
+node 1 coord: 0.0 0.0 0.0
+node 2 coord: 1.0 0.0 0.0
+node 3 coord: 1.0 1.0 1.0
+node 4 coord: 0.0 1.0 1.0
+node 5 coord: 2.0 0.0 0.0
+node 6 coord: 2.0 1.0 1.0
+node 7 coord: 2.0 2.0 2.0
+node 8 coord: 1.0 2.0 2.0
+node 9 coord: 0.0 2.0 2.0

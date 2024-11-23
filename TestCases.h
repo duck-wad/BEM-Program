@@ -1,4 +1,4 @@
 #pragma once
 
 void TestNormalJacobian(int caseNum);
-void TestSerendipity(int caseNum);
+void TestGaussPoints(int order);
