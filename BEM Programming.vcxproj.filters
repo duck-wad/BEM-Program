@@ -33,6 +33,9 @@
     <ClCompile Include="Compute.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Laplace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Geometry.h">
@@ -48,6 +51,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Compute.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Laplace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

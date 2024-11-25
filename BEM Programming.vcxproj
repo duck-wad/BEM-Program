@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="Compute.cpp" />
     <ClCompile Include="Integration.cpp" />
+    <ClCompile Include="Laplace.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="TestCases.cpp" />
@@ -136,8 +137,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Compute.h" />
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="Integration.h" />
     <ClInclude Include="Geometry.h" />
+    <ClInclude Include="Laplace.h" />
     <ClInclude Include="TestCases.h" />
     <ClInclude Include="Vector.h" />
   </ItemGroup>
