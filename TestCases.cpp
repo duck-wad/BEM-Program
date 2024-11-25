@@ -5,6 +5,8 @@
 #include "Vector.h"
 #include "Geometry.h"
 #include "Integration.h"
+#include "Material.h"
+#include "Utils.h"
 
 void TestNormalJacobian(int caseNum) {
 
@@ -193,4 +195,13 @@ void TestGaussPoints(int order) {
 	catch (const std::invalid_argument& e) {
 		std::cerr << "Error: " << e.what() << "\n";
 	}
+}
+
+void TestDMatrix() {
+	double E = 200000;
+	double nu = 0.3;
+	int Cdim = 2;
+	std::vector<std::vector<double>> mat;
+	DMatrix(E, nu, Cdim, mat);
+	PrintMatrix(mat);
 }

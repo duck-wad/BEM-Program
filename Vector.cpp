@@ -2,7 +2,7 @@
 #include <cassert>
 
 #include "Vector.h"
-#include "Geometry.h";
+#include "Geometry.h"
 
 double DotProduct(const std::vector<double>& a, const std::vector<double>& b) {
 

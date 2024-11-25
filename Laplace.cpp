@@ -1,10 +1,10 @@
 #include <iostream>
-#include <numbers>
 #include <cmath>
 
 #include "Vector.h"
-#include "Constants.h"
+#include "Utils.h"
 
+//receives radial distance and permeability/conductivity, outputs the potential
 double Potential(double r, double k, int Cdim) {
 	double U = 0.0;
 
@@ -20,6 +20,7 @@ double Potential(double r, double k, int Cdim) {
 	return U;
 }
 
+//receives radial distance (magnitude), distance vector, and normal vector to boundary, outputs the flow through the boundary
 double Flow(double r, std::vector<double>& dxr, std::vector<double>& normal, int Cdim) {
 	double T = 0.0;
 

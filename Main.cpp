@@ -10,7 +10,9 @@ int main() {
 	//TestNormalJacobian(6);
 	//TestGaussPoints(9);
 
-	ComputeArea();
+	//ComputeArea();
+
+	TestDMatrix();
 	
 	return 0;
 }
