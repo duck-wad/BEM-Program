@@ -4,6 +4,7 @@
 
 #include "TestCases.h"
 #include "Compute.h"
+#include "Utils.h"
 
 int main() {
 
@@ -12,7 +13,8 @@ int main() {
 
 	//ComputeArea();
 
-	TestDMatrix();
-	
+	//TestDMatrix();
+	//TestKelvinDisplacement();
+	TestKelvinTraction();
 	return 0;
 }

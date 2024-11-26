@@ -7,6 +7,7 @@
 #include "Integration.h"
 #include "Material.h"
 #include "Utils.h"
+#include "Kernels.h"
 
 void TestNormalJacobian(int caseNum) {
 
@@ -204,4 +205,27 @@ void TestDMatrix() {
 	std::vector<std::vector<double>> mat;
 	DMatrix(E, nu, Cdim, mat);
 	PrintMatrix(mat);
+}
+
+void TestKelvinDisplacement() {
+	double E = 200000;
+	double nu = 0.3;
+	int Cdim = 3;
+	std::vector<std::vector<double>> UK;
+	double r = 20;
+	//dxr needs to be a unit vector
+	std::vector<double> dxr{ 0.8574929257, 0.5144957554, 0.0 };
+	KelvinDisplacement(UK, dxr, r, E, nu, Cdim);
+	PrintMatrix(UK);
+}
+
+void TestKelvinTraction() {
+	double nu = 0.3;
+	int Cdim = 2;
+	std::vector<std::vector<double>> TK;
+	double r = 20;
+	std::vector<double> dxr{ 0.8574929257, 0.5144957554 };
+	std::vector<double> normal{ -0.4472135955, 0.894427191 };
+	KelvinTraction(TK, dxr, normal, r, nu, Cdim);
+	PrintMatrix(TK);
 }

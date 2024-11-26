@@ -1,6 +1,7 @@
-#include <iostream>b
+#include <iostream>
 #include <cassert>
 
+#include "Utils.h"
 #include "Vector.h"
 #include "Geometry.h"
 
@@ -83,7 +84,7 @@ void NormalJacobian(std::vector<double>& v3, double& Jac, double xsi, double eta
 	
 	//remove negative signs from zero values
 	for (size_t i = 0; i < v3.size(); i++) {
-		if (std::fabs(v3[i]) <= DBL_EPSILON) {
+		if (std::fabs(v3[i]) <= HIGH_TOL) {
 			v3[i] = std::fabs(v3[i]);
 		}
 	}

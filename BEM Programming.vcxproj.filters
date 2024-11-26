@@ -33,7 +33,7 @@
     <ClCompile Include="Compute.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Laplace.cpp">
+    <ClCompile Include="Kernels.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
@@ -59,7 +59,7 @@
     <ClInclude Include="Compute.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Laplace.h">
+    <ClInclude Include="Kernels.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utils.h">

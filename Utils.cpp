@@ -20,3 +20,12 @@ void PrintMatrix(const std::vector<std::vector<double>>& matrix){
 		std::cout << std::endl;
 	}
 }
+
+int Kronecker(int i, int j) {
+	if (i == j) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
