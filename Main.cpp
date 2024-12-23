@@ -15,6 +15,7 @@ int main() {
 
 	//TestDMatrix();
 	//TestKelvinDisplacement();
-	TestKelvinTraction();
+	//TestKelvinTraction();
+
 	return 0;
 }

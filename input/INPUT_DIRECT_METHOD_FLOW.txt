@@ -1,0 +1,4 @@
+flow: 1.0
+conductivity: 1.0
+radius: 1.0
+numseg: 16

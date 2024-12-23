@@ -73,8 +73,8 @@ void SerendipityFunction(std::vector<double>& Ni, int ldim,
 }
 
 //function receives vector of vectors for the derivatives
-//if element is 1D then the second column of DNi is filled with zeros
-//if element is 2D then the first column contains partial derivative wrt 
+//if element is 1D then the second row of DNi is filled with zeros
+//if element is 2D then the first row contains partial derivative wrt xsi, second row wrt eta
 void SerendipityDerivative(std::vector<std::vector<double>>& DNi, int ldim,
 	double xsi, double eta, int nodes, const std::vector<int>& inci) {
 

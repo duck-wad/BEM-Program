@@ -33,7 +33,7 @@ void ComputeArea() {
 
 	std::string junk;
 
-	std::ifstream infile("INPUT.DAT");
+	std::ifstream infile("input//INPUT_AREA.txt");
 	if (!infile) {
 		std::cerr << "Error: Unable to open file." << std::endl;
 		return;
@@ -89,6 +89,7 @@ void ComputeArea() {
 	GaussPoints(intord, Gcor, Wi);
 	
 	//loop over all the elements and add each element area/length to the total
+	//area per element is the jacobian at each 
 	for (size_t elem = 0; elem < noelem; elem++) {
 		inci = inciG[elem];
 		for (size_t i = 0; i < Cdim; i++) {
@@ -125,4 +126,37 @@ void ComputeArea() {
 	else {
 		std::cout << "Area = " << Area << std::endl;
 	}
+}
+
+//computes the heat flow past an isolated cylinder using the direct BE method
+//input file gives flow, conductivity, radius of cylinder and number of segments
+//function discretizes the boundary into nseg, 
+void FlowAroundCylinder() {
+
+	double q, k, radius, radiusOuter;
+	int numseg;
+	//kernel matrices
+	std::vector<std::vector<double>> deltaT;
+	std::vector<std::vector<double>> deltaU;
+	//vector with segment center potential
+	std::vector<double> u;
+	//vector for deltaU times t0 (applied flow)
+	std::vector<double> F;
+	//applied flow i.e boundary condition
+	std::vector<double> t0;
+	//start xA and end xB coordinates of each segment
+	//first row contains the x coord, second row contains the y coord
+	//each column correspond with a point
+	std::vector<std::vector<double>> xA, xB;
+	//coordinate of the center point Pi
+	std::vector<double> Pi;
+	//vector pointing from A to B of each segment
+	std::vector<std::vector<double>> Vab;
+	//normal unit vector for each segment
+	std::vector<std::vector<double>> Vn;
+	//temp vectors pointing to A and B of segment
+	std::vector<double> vrA, vrB;
+	//segment length
+	double length;
+
 }
