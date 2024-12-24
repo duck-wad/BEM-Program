@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iomanip>
 #include <cmath>
+#include <Eigen/Dense>
 
 #include "Compute.h"
 #include "Integration.h"
@@ -174,6 +175,7 @@ void FlowAroundCylinder() {
 	}
 
 	infile >> junk >> q >> junk >> k >> junk >> radius >> junk >> numseg;
+	infile.close();
 
 	//print inputs to console
 	std::cout << "Heat flow input: " << q << std::endl;
@@ -198,7 +200,7 @@ void FlowAroundCylinder() {
 	//let theta be a temp variable that gives angle to the starting point of each segment
 	//loop over each segment, increment theta by deltaTheta and use to calculate the x and y coordinate of each segment start and end point
 	//start with horizontal segment at top of circle. theta is measured from x-axis 
-	double theta = (PI / 2.) - (deltaTheta / 2.0);
+	double theta = (PI / 2.0) - (deltaTheta / 2.0);
 	//start point of segment 1
 	coordA[0][0] = radiusOuter * cos(theta);
 	coordA[1][0] = radiusOuter * sin(theta);
@@ -238,9 +240,9 @@ void FlowAroundCylinder() {
 		double dy = coordA[1][i] - coordB[1][i];
 		length = sqrt(dx * dx + dy * dy);
 		//tangent vector
-		Vt = { dx / length, dy / length };
+		Vt = { (dx / length), (dy / length) };
 		//normal vector
-		Vn = { Vt[1], -1.0 * Vt[0] };
+		Vn = { Vt[1], (- 1.0 * Vt[0])};
 		for (size_t j = 0; j < numseg; j++) {
 			//compute distance from Pi to start and end of segment rA and rB
 			vrA[0] = coordA[0][i] - coordPi[0][j];
@@ -251,10 +253,10 @@ void FlowAroundCylinder() {
 			double rB = sqrt(vrB[0] * vrB[0] + vrB[1] * vrB[1]);
 			//calculate the cosines and sines of the angles first, and then backcalculate the actual angle thetaA and thetaB
 			//angles are in terms of local coordinates defined by the segment i. use the normal and tangent vectors to define the local x and y
-			double cosThetaA = DotProduct(Vn, NormalizeVector(vrA, rA));
-			double cosThetaB = DotProduct(Vn, NormalizeVector(vrB, rB));
-			double sinThetaA = DotProduct(Vt, NormalizeVector(vrA, rA));
-			double sinThetaB = DotProduct(Vt, NormalizeVector(vrB, rB));
+			double cosThetaA = DotProduct(Vn, vrA) / rA;
+			double cosThetaB = DotProduct(Vn, vrB) / rB;
+			double sinThetaA = DotProduct(Vt, vrA) / rA;
+			double sinThetaB = DotProduct(Vt, vrB) / rB;
 			//compute angles
 			double thetaA = acos(cosThetaA) * (sinThetaA >= 0 ? 1.0 : -1.0);
 			double thetaB = acos(cosThetaB) * (sinThetaB >= 0 ? 1.0 : -1.0);
@@ -271,14 +273,32 @@ void FlowAroundCylinder() {
 		}
 	}
 
-	//solve the system of equations by inverting the deltaT matrix and multiplying by F vector
 	F = deltaU * t0;
-	std::vector<std::vector<double>> invertedT = invertMatrix(deltaT);
-	u = invertedT * F;
+	/*
+	writeMatrixToCSV(deltaT, "debug/deltaT1.csv");
+	writeMatrixToCSV(deltaU, "debug/deltaU1.csv");
+	writeVectorToCSV(F, "debug/F1.csv");
+	*/
+	
+	// Convert to Eigen matrices and vectors
+	Eigen::MatrixXd deltaT_eigen(numseg, numseg);
+	Eigen::MatrixXd deltaU_eigen(numseg, numseg);
+	Eigen::VectorXd F_eigen(numseg);
 
+	for (size_t i = 0; i < numseg; ++i) {
+		F_eigen(i) = F[i];
+		for (size_t j = 0; j < numseg; ++j) {
+			deltaT_eigen(i, j) = deltaT[i][j];
+			deltaU_eigen(i, j) = deltaU[i][j];
+		}
+	}
+
+	// Solve for u using Eigen's solver
+	Eigen::VectorXd u_eigen = deltaT_eigen.inverse() * F_eigen;
+	
 	//print boundary results to console
 	std::cout << "Temperature on boundary segments: " << std::endl;
 	for (size_t i = 0; i < numseg; i++) {
-		std::cout << "Segment " << i << ": " << u[i]-q/k*coordPi[1][i] << std::endl;
+		std::cout << "Segment " << i+1 << ": " << u_eigen[i]-(q/k*coordPi[1][i]) << std::endl;
 	}
 }
