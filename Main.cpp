@@ -16,6 +16,7 @@ int main() {
 	//TestDMatrix();
 	//TestKelvinDisplacement();
 	//TestKelvinTraction();
+	FlowAroundCylinder();
 
 	return 0;
 }

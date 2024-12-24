@@ -41,13 +41,16 @@ double VectorLength(const std::vector<double>& a) {
 }
 
 //normalize vector by its length
-void NormalizeVector(std::vector<double>& a, const double L) {
+std::vector<double> NormalizeVector(const std::vector<double>& a, const double L) {
 
 	assert(L != 0 && "Cannot normalize vector with zero length");
 
+	std::vector<double> output(a.size());
+
 	for (size_t i = 0; i < a.size(); i++) {
-		a[i] /= L;
+		output[i] = a[i] / L;
 	}
+	return output;
 }
 
 //input point coordinates, output the Jacobian and normal vector to the point
@@ -80,7 +83,7 @@ void NormalJacobian(std::vector<double>& v3, double& Jac, double xsi, double eta
 
 	Jac = VectorLength(v3);
 
-	NormalizeVector(v3, Jac);
+	v3 = NormalizeVector(v3, Jac);
 	
 	//remove negative signs from zero values
 	for (size_t i = 0; i < v3.size(); i++) {
@@ -88,4 +91,6 @@ void NormalJacobian(std::vector<double>& v3, double& Jac, double xsi, double eta
 			v3[i] = std::fabs(v3[i]);
 		}
 	}
+
+	
 }

@@ -2,10 +2,12 @@
 #include <vector>
 #include <fstream>
 #include <iomanip>
+#include <cmath>
 
 #include "Compute.h"
 #include "Integration.h"
 #include "Vector.h"
+#include "Utils.h"
 
 void ComputeArea() {
 	//ldim is dimension of the boundary element (1D, 2D)
@@ -133,7 +135,9 @@ void ComputeArea() {
 //function discretizes the boundary into nseg, 
 void FlowAroundCylinder() {
 
-	double q, k, radius, radiusOuter;
+	std::cout << "Heat flow past cylinder using the direct BE method." << std::endl;
+
+	double q, k, radius, radiusOuter, deltaTheta;
 	int numseg;
 	//kernel matrices
 	std::vector<std::vector<double>> deltaT;
@@ -144,19 +148,137 @@ void FlowAroundCylinder() {
 	std::vector<double> F;
 	//applied flow i.e boundary condition
 	std::vector<double> t0;
-	//start xA and end xB coordinates of each segment
+	//start coordA and end coordB coordinates of each segment
 	//first row contains the x coord, second row contains the y coord
 	//each column correspond with a point
-	std::vector<std::vector<double>> xA, xB;
+	std::vector<std::vector<double>> coordA, coordB;
 	//coordinate of the center point Pi
-	std::vector<double> Pi;
-	//vector pointing from A to B of each segment
-	std::vector<std::vector<double>> Vab;
-	//normal unit vector for each segment
-	std::vector<std::vector<double>> Vn;
-	//temp vectors pointing to A and B of segment
-	std::vector<double> vrA, vrB;
+	std::vector<std::vector<double>> coordPi;
+	//temp tangent vector for each segment
+	std::vector<double> Vt(2);
+	//temp normal unit vector for each segment
+	std::vector<double> Vn(2);
+	//temp vectors pointing from Pi to A and B of segment
+	std::vector<double> vrA(2);
+	std::vector<double> vrB(2);
 	//segment length
 	double length;
 
+	//read input file
+	std::string junk;
+
+	std::ifstream infile("input//INPUT_DIRECT_METHOD_FLOW.txt");
+	if (!infile) {
+		std::cerr << "Error: Unable to open file." << std::endl;
+		return;
+	}
+
+	infile >> junk >> q >> junk >> k >> junk >> radius >> junk >> numseg;
+
+	//print inputs to console
+	std::cout << "Heat flow input: " << q << std::endl;
+	std::cout << "Thermal conductivity: " << k << std::endl;
+	std::cout << "Cylinder radius: " << radius << std::endl;
+	std::cout << "Number of segments: " << numseg << std::endl;
+
+	deltaT.resize(numseg, std::vector<double>(numseg));
+	deltaU.resize(numseg, std::vector<double>(numseg));
+	coordA.resize(2, std::vector<double>(numseg));
+	coordB.resize(2, std::vector<double>(numseg));
+	t0.resize(numseg);
+	F.resize(numseg);
+	coordPi.resize(2, std::vector<double>(numseg));
+
+	//FILL THE COORDINATE VECTORS WITH THE SEGMENT START AND END POINTS
+	//deltaTheta is the change in angle between segment normals
+	deltaTheta = 2.0 * PI / numseg;
+	//centerpoint of each segment is distance radius from the circle center
+	//end points of each segment are distance radiusOuter from circle center since segments are straight. find radiusOuter with pythogoras
+	radiusOuter = radius / cos(deltaTheta / 2.0);
+	//let theta be a temp variable that gives angle to the starting point of each segment
+	//loop over each segment, increment theta by deltaTheta and use to calculate the x and y coordinate of each segment start and end point
+	//start with horizontal segment at top of circle. theta is measured from x-axis 
+	double theta = (PI / 2.) - (deltaTheta / 2.0);
+	//start point of segment 1
+	coordA[0][0] = radiusOuter * cos(theta);
+	coordA[1][0] = radiusOuter * sin(theta);
+	for (size_t i = 0; i < numseg-1; i++) {
+		theta += deltaTheta;
+		coordB[0][i] = radiusOuter * cos(theta);
+		coordB[1][i] = radiusOuter * sin(theta);
+		coordA[0][i + 1] = coordB[0][i];
+		coordA[1][i + 1] = coordB[1][i];
+	}
+	coordB[0][numseg - 1] = coordA[0][0];
+	coordB[1][numseg - 1] = coordA[1][0];
+	//calculate the coordinates of the Pi points at the center of each segment
+	for (size_t i = 0; i < numseg; i++) {
+		coordPi[0][i] = (coordA[0][i] + coordB[0][i]) / 2.0;
+		coordPi[1][i] = (coordA[1][i] + coordB[1][i]) / 2.0;
+	}
+
+	//compute the applied tractions t0 due q at the center of element
+	//start at element 1 (angle pi/2 from x-axis)
+	theta = PI / 2.0;
+	for (size_t i = 0; i < numseg; i++) {
+		t0[i] = q * sin(theta);
+		theta += deltaTheta;
+	}
+
+	//ASSEMBLE THE DELTA_T AND DELTA_U MATRICES
+	//two loops. outer loop loops over each "source" segment Q
+	//inner loop loops over each segment again, treating as the "potential" point Pi. loop over each segment and find the contribution of the source segment Q to each
+	//better to do this way because can define the local coordinates fewer times
+	
+	double c = 0.5 / PI;
+	double c1 = 0.5 / (PI * k);
+	
+	for (size_t i = 0; i < numseg; i++) {
+		double dx = coordA[0][i] - coordB[0][i];
+		double dy = coordA[1][i] - coordB[1][i];
+		length = sqrt(dx * dx + dy * dy);
+		//tangent vector
+		Vt = { dx / length, dy / length };
+		//normal vector
+		Vn = { Vt[1], -1.0 * Vt[0] };
+		for (size_t j = 0; j < numseg; j++) {
+			//compute distance from Pi to start and end of segment rA and rB
+			vrA[0] = coordA[0][i] - coordPi[0][j];
+			vrA[1]  = coordA[1][i] - coordPi[1][j];
+			vrB[0] = coordB[0][i] - coordPi[0][j];
+			vrB[1] = coordB[1][i] - coordPi[1][j];
+			double rA = sqrt(vrA[0] * vrA[0] + vrA[1] * vrA[1]);
+			double rB = sqrt(vrB[0] * vrB[0] + vrB[1] * vrB[1]);
+			//calculate the cosines and sines of the angles first, and then backcalculate the actual angle thetaA and thetaB
+			//angles are in terms of local coordinates defined by the segment i. use the normal and tangent vectors to define the local x and y
+			double cosThetaA = DotProduct(Vn, NormalizeVector(vrA, rA));
+			double cosThetaB = DotProduct(Vn, NormalizeVector(vrB, rB));
+			double sinThetaA = DotProduct(Vt, NormalizeVector(vrA, rA));
+			double sinThetaB = DotProduct(Vt, NormalizeVector(vrB, rB));
+			//compute angles
+			double thetaA = acos(cosThetaA) * (sinThetaA >= 0 ? 1.0 : -1.0);
+			double thetaB = acos(cosThetaB) * (sinThetaB >= 0 ? 1.0 : -1.0);
+
+			//if diagonal entry treat differently than off-diagonal
+			if (i == j) {
+				deltaT[i][j] = 0.5;
+				deltaU[i][j] = length * c1 * (log(length / 2.0) - 1.0);
+			}
+			else {
+				deltaT[i][j] = c * (thetaB - thetaA);
+				deltaU[i][j] = c1 * ((rB * sinThetaB * (log(rB) - 1) + thetaB * rB * cosThetaB) - (rA * sinThetaA * (log(rA) - 1) + thetaA * rA * cosThetaA));
+			}
+		}
+	}
+
+	//solve the system of equations by inverting the deltaT matrix and multiplying by F vector
+	F = deltaU * t0;
+	std::vector<std::vector<double>> invertedT = invertMatrix(deltaT);
+	u = invertedT * F;
+
+	//print boundary results to console
+	std::cout << "Temperature on boundary segments: " << std::endl;
+	for (size_t i = 0; i < numseg; i++) {
+		std::cout << "Segment " << i << ": " << u[i]-q/k*coordPi[1][i] << std::endl;
+	}
 }
