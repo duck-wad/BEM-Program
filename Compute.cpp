@@ -191,7 +191,8 @@ void FlowAroundCylinder() {
 	F.resize(numseg);
 	coordPi.resize(2, std::vector<double>(numseg));
 
-	//FILL THE COORDINATE VECTORS WITH THE SEGMENT START AND END POINTS
+	/* FILL THE COORDINATE VECTORS WITH THE SEGMENT START AND END POINTS */
+
 	//deltaTheta is the change in angle between segment normals
 	deltaTheta = 2.0 * PI / numseg;
 	//centerpoint of each segment is distance radius from the circle center
@@ -227,11 +228,9 @@ void FlowAroundCylinder() {
 		theta += deltaTheta;
 	}
 
-	//ASSEMBLE THE DELTA_T AND DELTA_U MATRICES
+	/* ASSEMBLE THE DELTA_T AND DELTA_U MATRICES */
 	//two loops. outer loop loops over each "source" segment Q
 	//inner loop loops over each segment again, treating as the "potential" point Pi. loop over each segment and find the contribution of the source segment Q to each
-	//better to do this way because can define the local coordinates fewer times
-	
 	double c = 0.5 / PI;
 	double c1 = 0.5 / (PI * k);
 	
@@ -274,12 +273,9 @@ void FlowAroundCylinder() {
 	}
 
 	F = deltaU * t0;
-	/*
-	writeMatrixToCSV(deltaT, "debug/deltaT1.csv");
-	writeMatrixToCSV(deltaU, "debug/deltaU1.csv");
-	writeVectorToCSV(F, "debug/F1.csv");
-	*/
 	
+	/* SOLVE SYSTEM USING EIGEN LIBRARY */
+
 	// Convert to Eigen matrices and vectors
 	Eigen::MatrixXd deltaT_eigen(numseg, numseg);
 	Eigen::MatrixXd deltaU_eigen(numseg, numseg);
@@ -293,12 +289,16 @@ void FlowAroundCylinder() {
 		}
 	}
 
-	// Solve for u using Eigen's solver
-	Eigen::VectorXd u_eigen = deltaT_eigen.inverse() * F_eigen;
-	
+	// Regularization, since the system is very ill-conditioned 
+	double lambda = 1e-12;  // Small regularization parameter
+	Eigen::MatrixXd deltaT_regularized = deltaT_eigen + lambda * Eigen::MatrixXd::Identity(deltaT_eigen.rows(), deltaT_eigen.cols());
+
+	// Solve with regularization
+	Eigen::VectorXd u_eigen = deltaT_regularized.colPivHouseholderQr().solve(F_eigen);
+
 	//print boundary results to console
-	std::cout << "Temperature on boundary segments: " << std::endl;
+	std::cout << "Regularization: " << std::endl;
 	for (size_t i = 0; i < numseg; i++) {
-		std::cout << "Segment " << i+1 << ": " << u_eigen[i]-(q/k*coordPi[1][i]) << std::endl;
+		std::cout << "Segment " << i + 1 << ": " << u_eigen[i] - (q / k * coordPi[1][i]) << std::endl;
 	}
 }

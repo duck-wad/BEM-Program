@@ -1,6 +1,10 @@
 #pragma once
 
+#include <fstream>
+#include <iostream>
 #include <vector>
+#include <string>
+#include <sstream>
 
 const double PI = 3.14159265359;
 
@@ -67,7 +71,43 @@ void writeMatrixToCSV(const std::vector<std::vector<T>>& matrix, const std::stri
 	std::cout << "Matrix written to " << filename << " successfully." << std::endl;
 }
 
-std::vector<std::vector<double>> invertMatrix(const std::vector<std::vector<double>>& A);
+// Function to read a CSV file into a std::vector<std::vector<T>>
+template <typename T>
+std::vector<std::vector<T>> readCSVtoMatrix(const std::string& filename) {
+	std::ifstream file(filename);
+	if (!file.is_open()) {
+		throw std::runtime_error("Could not open file: " + filename);
+	}
+
+	std::vector<std::vector<T>> data;
+	std::string line;
+	while (std::getline(file, line)) {
+		std::stringstream lineStream(line);
+		std::string cell;
+		std::vector<T> row;
+		while (std::getline(lineStream, cell, ',')) {
+			row.push_back(static_cast<T>(std::stod(cell)));
+		}
+		data.push_back(row);
+	}
+	return data;
+}
+
+// Function to read a CSV file into a std::vector<T>
+template <typename T>
+std::vector<T> readCSVtoVector(const std::string& filename) {
+	std::ifstream file(filename);
+	if (!file.is_open()) {
+		throw std::runtime_error("Could not open file: " + filename);
+	}
+
+	std::vector<T> data;
+	std::string line;
+	while (std::getline(file, line)) {
+		data.push_back(static_cast<T>(std::stod(line)));
+	}
+	return data;
+}
 
 /* ALGEBRAIC MATRIX / VECTOR OPERATOR OVERLOADS */
 
